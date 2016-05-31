@@ -11,8 +11,14 @@ public class ControladorJugador : MonoBehaviour
 	
 	// metodo que se llama en cada ciclo fisico
 	void FixedUpdate() {
-		// memorizamos el movimiento horizontal siempre
-		float movH = Input.GetAxis("Horizontal");
+		float movH = 0;
+		Touch touch;
+		if (Input.touchCount == 1) {
+			touch = Input.GetTouch(0);
+			if (touch.phase == TouchPhase.Moved) {
+				movH = touch.deltaPosition.x;
+			}
+		}
 		
 		// en funcion del estado del juego
 		switch(juego.estado) {
@@ -20,8 +26,11 @@ public class ControladorJugador : MonoBehaviour
 				// si saca el jugador lo movemos y luego vemos si pulsa up
 				// en cuyo caso pasamos a sacando jugador
 				Mover (movH);
-				if(Input.GetAxis("Vertical") != 0) {
-					juego.estado = ControladorJuego.Estados.SacandoJugador;
+				if (Input.touchCount == 1) {
+					touch = Input.GetTouch(0);
+					if (Mathf.Abs(touch.deltaPosition.y) > 5.0f) {
+						juego.estado = ControladorJuego.Estados.SacandoJugador;
+					}
 				}
 				break;
 				
@@ -39,7 +48,7 @@ public class ControladorJugador : MonoBehaviour
 				
 				// movemos el jugador
 				movimiento = new Vector3(direccionGolpe.x, 0.0f, direccionGolpe.y);
-				GetComponent<Rigidbody>().position += movimiento * juego.reaccionJugador;
+				GetComponent<Rigidbody>().position += movimiento * Globals.reaccionJugador * 4;
 				break;
 				
 			case ControladorJuego.Estados.EnJuego:
@@ -53,7 +62,7 @@ public class ControladorJugador : MonoBehaviour
 	void Mover(float movH) {
 		// el movimiento esta restringido a los limites del campo de juego
 		movimiento = new Vector3(movH, 0.0f, 0.0f);
-		GetComponent<Rigidbody>().position += movimiento * juego.reaccionJugador;
+		GetComponent<Rigidbody>().position += movimiento * Globals.reaccionJugador;
 		GetComponent<Rigidbody>().position = new Vector3(
 			Mathf.Clamp(GetComponent<Rigidbody>().position.x, -5.5f, 5.5f),
 			0.0f,

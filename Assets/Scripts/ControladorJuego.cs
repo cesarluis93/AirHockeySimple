@@ -19,54 +19,51 @@ public class ControladorJuego : MonoBehaviour
 		Final
 	}
 
-	// campos con propiedades del jugador
-	
 	public GameObject jugador; // el jugador
-	public float reaccionJugador; // factor que indica la capacidad de reaccion del jugador
-	
-	// campos con propiedades de la IA
-	
 	public GameObject ia; // la inteligencia artificial
-	public float reaccionIA; // factor que indica la capacidad de reaccion de la IA
-	public float tiempoEspera; // tiempo antes de que la IA efectue un saque
-	
-	// campos con propiedades del disco
-	
 	public GameObject disco; // el disco
-	public float reaccionDisco; // factor que indica la capacidad de reaccion del disco
+
+	public float reaccionIA;
+	public float reaccionDisco;
+	public float tiempoEspera;
 	
-	// campos con propiedades del juego
-	
+	// campos con propiedades del juego	
 	public GUIText txtJugador; // marcador de goles del jugador
 	public int golesJugador;
 	public GUIText txtIA; // marcador de goles de la ia
 	public int golesIA;
 	public GUIText txtDiscos; // marcador de ordinal de disco en juego
 	private int discoEnJuego;
+	public GUIText txtIp;
 	public Estados estado; // estado del juego
 
 	// metodo que se ejecuta al principio del juego
 	
 	public void Start()
 	{
+		// Formatos de marcadores
+		txtJugador.fontSize = 40;
+		txtIA.fontSize = 40;
+		txtDiscos.fontSize = 40;
+		txtIp.fontSize = 40;
+
 		// establecemos estado
 		estado = Estados.Inicial;
 		
 		// iniciamos al jugador
 		jugador = GameObject.Find ("Mallet1");
 		jugador.transform.position = new Vector3(0.0f, 0.0f, -11.0f);
-		reaccionJugador = 0.2f;
 
 		// iniciamos la IA
-
 		ia = GameObject.Find ("Mallet2");
 		ia.transform.position = new Vector3(0.0f, 0.0f, 11.0f);
-		reaccionIA = 0.1f;
+		reaccionIA = Globals.reaccionIA;
+		tiempoEspera = Globals.tiempoEspera;
 
 		// iniciamos el disco
 		disco = GameObject.Find("Puck");
 		disco.transform.position = new Vector3(0.0f, 0.0f, -6.0f);
-		reaccionDisco = 0.3f;
+		reaccionDisco = Globals.reaccionDisco;
 		
 		// iniciamos marcadores		
 		discoEnJuego = 1;
@@ -75,6 +72,7 @@ public class ControladorJuego : MonoBehaviour
 		
 		// cambio de estado
 		estado = Estados.SacaJugador;
+		txtIp.text = "IP: " + getMyIp();
 	}
 	// este metodo se ejecuta en cada fotograma
 	
@@ -92,28 +90,27 @@ public class ControladorJuego : MonoBehaviour
 				// se produjo un gol
 				discoEnJuego++;
 				
+				// recolocar jugadores
+				// jugador.GetComponent<Rigidbody>().position = new Vector3(0.0f, 0.0f, -11.0f);
+				// ia.GetComponent<Rigidbody>().position = new Vector3(0.0f, 0.0f, 11.0f);
+				
 				if(golesIA == 4 || golesJugador == 4) {
 					// si alguno tiene 4 goles se finaliza la partida
 					estado = Estados.Final;
-					jugador.GetComponent<Rigidbody>().position = new Vector3(0.0f, 0.0f, -11.0f);
-					ia.GetComponent<Rigidbody>().position = new Vector3(0.0f, 0.0f, 11.0f);
+					// colocar disco en medio
 					disco.GetComponent<Rigidbody>().position = new Vector3(0.0f, 0.0f, 0.0f);
 				}
 				else if(estado == Estados.GolJugador) {
-					// recolocamos todo
-					jugador.GetComponent<Rigidbody>().position = new Vector3(0.0f, 0.0f, -11.0f);
-					ia.GetComponent<Rigidbody>().position = new Vector3(0.0f, 0.0f, 11.0f);
+					// colocar disco cerca de ia
 					disco.GetComponent<Rigidbody>().position = new Vector3(0.0f, 0.0f, 6.0f);
 					
 					// cambio de estado
 					estado = Estados.EnEspera;
-					tiempoEspera = 2.0f;
+					tiempoEspera = Globals.tiempoEspera;
 				}
 				else {
 					// si marco la IA
-					// recolocamos todo
-					jugador.GetComponent<Rigidbody>().position = new Vector3(0.0f, 0.0f, -11.0f);
-					ia.GetComponent<Rigidbody>().position = new Vector3(0.0f, 0.0f, 11.0f);
+					// colocar disco cerca de jugador
 					disco.GetComponent<Rigidbody>().position = new Vector3(0.0f, 0.0f, -6.0f);
 					
 					// cambio de estado
@@ -124,7 +121,7 @@ public class ControladorJuego : MonoBehaviour
 		case Estados.EnEspera:
 			// esperando a que saque la IA
 			tiempoEspera -= Time.deltaTime;
-			if(tiempoEspera < 0) {				
+			if(tiempoEspera < 0) {
 				// al finalizar de la cuenta se cambia de estado
 				estado = Estados.SacaIA;
 			}
@@ -143,4 +140,18 @@ public class ControladorJuego : MonoBehaviour
 		}
 	}
 
+	void OnGUI() {
+		if (GUI.Button (
+			new Rect(Screen.width - 90, 50, 80, 25),
+			"Reiniciar"
+		)) {
+			Application.LoadLevel ("Principal");
+		}
+	}
+
+	string getMyIp() {
+		Debug.Log ("MI IP: " + Network.player.ipAddress);
+
+		return Network.player.ipAddress;
+	}
 }
