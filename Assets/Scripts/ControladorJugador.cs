@@ -3,12 +3,15 @@ using System.Collections;
 
 public class ControladorJugador : MonoBehaviour 
 {
-	// referencia al controlador del juego
-	public ControladorJuego juego;
-
 	// movimiento del jugador
 	private Vector3 movimiento;
-	
+
+	private float zPosition = 0.0f;
+
+	void Start() {
+		zPosition = (Globals.isLocalPlayer) ? 11.0f : -11.0f;
+	}
+
 	// metodo que se llama en cada ciclo fisico
 	void FixedUpdate() {
 		float movH = 0;
@@ -21,28 +24,26 @@ public class ControladorJugador : MonoBehaviour
 		}
 		
 		// en funcion del estado del juego
-		switch(juego.estado) {
-			case ControladorJuego.Estados.SacaJugador:
-				// si saca el jugador lo movemos y luego vemos si pulsa up
-				// en cuyo caso pasamos a sacando jugador
+		switch(ControladorJuego.estado) {
+			case ControladorJuego.Estados.SacaJugador1:
 				Mover (movH);
 				if (Input.touchCount == 1) {
 					touch = Input.GetTouch(0);
 					if (Mathf.Abs(touch.deltaPosition.y) > 5.0f) {
-						juego.estado = ControladorJuego.Estados.SacandoJugador;
+						ControladorJuego.estado = ControladorJuego.Estados.SacandoJugador1;
 					}
 				}
 				break;
 				
-			case ControladorJuego.Estados.SacandoJugador:
+			case ControladorJuego.Estados.SacandoJugador1:
 				// calculamos la direccion relativa del disco
 				Vector2 posDisco = new Vector2(
 					GetComponent<Rigidbody>().position.x,
 					GetComponent<Rigidbody>().position.z
 				);
 				Vector2 posJugador = new Vector2(
-					juego.disco.GetComponent<Rigidbody>().position.x,
-					juego.disco.GetComponent<Rigidbody>().position.z
+					ControladorJuego.disco.GetComponent<Rigidbody>().position.x,
+					ControladorJuego.disco.GetComponent<Rigidbody>().position.z
 				);
 				Vector2 direccionGolpe = posJugador - posDisco;
 				
@@ -50,7 +51,34 @@ public class ControladorJugador : MonoBehaviour
 				movimiento = new Vector3(direccionGolpe.x, 0.0f, direccionGolpe.y);
 				GetComponent<Rigidbody>().position += movimiento * Globals.reaccionJugador * 4;
 				break;
-				
+
+			case ControladorJuego.Estados.SacaJugador2:
+				Mover (movH);
+				if (Input.touchCount == 1) {
+					touch = Input.GetTouch(0);
+					if (Mathf.Abs(touch.deltaPosition.y) > 5.0f) {
+						ControladorJuego.estado = ControladorJuego.Estados.SacandoJugador2;
+					}
+				}
+				break;
+
+			case ControladorJuego.Estados.SacandoJugador2:
+				// calculamos la direccion relativa del disco
+				posDisco = new Vector2(
+					GetComponent<Rigidbody>().position.x,
+					GetComponent<Rigidbody>().position.z
+				);
+				posJugador = new Vector2(
+					ControladorJuego.disco.GetComponent<Rigidbody>().position.x,
+					ControladorJuego.disco.GetComponent<Rigidbody>().position.z
+				);
+				direccionGolpe = posJugador - posDisco;
+
+				// movemos el jugador
+				movimiento = new Vector3(direccionGolpe.x, 0.0f, direccionGolpe.y);
+				GetComponent<Rigidbody>().position += movimiento * Globals.reaccionJugador * 4;
+				break;
+
 			case ControladorJuego.Estados.EnJuego:
 				// movemos el jugador
 				Mover(movH);
@@ -66,7 +94,7 @@ public class ControladorJugador : MonoBehaviour
 		GetComponent<Rigidbody>().position = new Vector3(
 			Mathf.Clamp(GetComponent<Rigidbody>().position.x, -5.5f, 5.5f),
 			0.0f,
-			-11.0f
+			zPosition
 		);
 		
 	}

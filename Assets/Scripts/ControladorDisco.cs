@@ -17,7 +17,7 @@ public class ControladorDisco : MonoBehaviour
 		if (colision.gameObject.tag == "Player") {
 			// si choca con uno de los jugadores
 			// puede ser un saque por lo que cambiamos el estado del juego
-			juego.estado = ControladorJuego.Estados.EnJuego;
+			ControladorJuego.estado = ControladorJuego.Estados.EnJuego;
 			
 			// calculamos el nuevo movimiento en funcion del angulo de choque
 			Vector2 posDisco = new Vector2 (GetComponent<Rigidbody> ().position.x, GetComponent<Rigidbody> ().position.z);
@@ -35,26 +35,26 @@ public class ControladorDisco : MonoBehaviour
 			}
 		}
 		else if(colision.gameObject.tag == "Lateral") {
-					// si choca con un lateral invertimos el eje x del movimiento
+			// si choca con un lateral invertimos el eje x del movimiento
 			movimiento.x = -movimiento.x;
 		}
 		else if(colision.gameObject.tag == "Frontal") {
 			// si choca con un frontal invertimos el eje z del movimiento
 			movimiento.z = -movimiento.z;
 		}
-		else if(colision.gameObject.tag == "PorteriaJugador") {
-			// si choca con la porteria del jugador
+		else if(colision.gameObject.tag == "PorteriaJugador1") {
+			// si choca con la porteria del jugador1
 			movimiento = new Vector3(0.0f, 0.0f, 0.0f);
-			juego.golesIA++;
+			juego.golesJugador1++;
 			juego.reaccionDisco = Globals.reaccionDisco;
-			juego.estado = ControladorJuego.Estados.GolIA;
+			ControladorJuego.estado = ControladorJuego.Estados.GolJugador1;
 		}
-		else if(colision.gameObject.tag == "PorteriaIA") {
+		else if(colision.gameObject.tag == "PorteriaJugador2") {
 			// si choca con la porteria del jugador
 			movimiento = new Vector3(0.0f, 0.0f, 0.0f);
-			juego.golesJugador++;
+			juego.golesJugador2++;
 			juego.reaccionDisco = Globals.reaccionDisco;
-			juego.estado = ControladorJuego.Estados.GolJugador;
+			ControladorJuego.estado = ControladorJuego.Estados.GolJugador2;
 		}
 
 		// emitimos el sonido de choque
