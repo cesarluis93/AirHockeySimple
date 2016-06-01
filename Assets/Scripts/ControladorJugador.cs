@@ -9,7 +9,7 @@ public class ControladorJugador : MonoBehaviour
 	private float zPosition = 0.0f;
 
 	void Start() {
-		zPosition = (Globals.isLocalPlayer) ? 11.0f : -11.0f;
+		zPosition = (Globals.isLocalPlayer) ? -11.0f : 11.0f;
 	}
 
 	// metodo que se llama en cada ciclo fisico
@@ -42,8 +42,8 @@ public class ControladorJugador : MonoBehaviour
 					GetComponent<Rigidbody>().position.z
 				);
 				Vector2 posJugador = new Vector2(
-					ControladorJuego.disco.GetComponent<Rigidbody>().position.x,
-					ControladorJuego.disco.GetComponent<Rigidbody>().position.z
+					ControladorDisco.position.x,
+					ControladorDisco.position.z
 				);
 				Vector2 direccionGolpe = posJugador - posDisco;
 				
@@ -69,8 +69,8 @@ public class ControladorJugador : MonoBehaviour
 					GetComponent<Rigidbody>().position.z
 				);
 				posJugador = new Vector2(
-					ControladorJuego.disco.GetComponent<Rigidbody>().position.x,
-					ControladorJuego.disco.GetComponent<Rigidbody>().position.z
+					ControladorDisco.position.x,
+					ControladorDisco.position.z
 				);
 				direccionGolpe = posJugador - posDisco;
 

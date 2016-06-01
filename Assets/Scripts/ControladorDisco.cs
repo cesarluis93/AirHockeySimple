@@ -1,13 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ControladorDisco : MonoBehaviour 
+public class ControladorDisco : MonoBehaviour
 {
-	// referencia al controlador del juego
-	public ControladorJuego juego;
+	public static Vector3 movimiento;
+	public static Vector3 position;
+	private float reaccionDisco;
 
-	// campos privados
-	private Vector3 movimiento;
+	void Start() {
+		position = GetComponent<Rigidbody> ().position = new Vector3 (0.0f, 0.0f, -6.0f);
+		movimiento = new Vector3(0.0f, 0.0f, 0.0f);
+		reaccionDisco = Globals.reaccionDisco;
+	}
 
 	// este metodo se activa cada vez que el disco entra en un collider que es trigger
 	void OnTriggerEnter(Collider colision) {
@@ -17,6 +21,7 @@ public class ControladorDisco : MonoBehaviour
 		if (colision.gameObject.tag == "Player") {
 			// si choca con uno de los jugadores
 			// puede ser un saque por lo que cambiamos el estado del juego
+			StartCoroutine(WaitPlease());
 			ControladorJuego.estado = ControladorJuego.Estados.EnJuego;
 			
 			// calculamos el nuevo movimiento en funcion del angulo de choque
@@ -30,8 +35,8 @@ public class ControladorDisco : MonoBehaviour
 			movimiento = new Vector3 (Mathf.Clamp (movimiento.x, -1.25f, 1.25f), 0.0f, Mathf.Clamp (movimiento.z, -1.25f, 1.25f));
 
 			// incrementamos la capacidad de reaccion del disco hasta un maximo de 0.5f
-			if (juego.reaccionDisco < 0.5) {
-				juego.reaccionDisco += 0.05f;
+			if (reaccionDisco < 0.5) {
+				reaccionDisco += 0.05f;
 			}
 		}
 		else if(colision.gameObject.tag == "Lateral") {
@@ -45,16 +50,18 @@ public class ControladorDisco : MonoBehaviour
 		else if(colision.gameObject.tag == "PorteriaJugador1") {
 			// si choca con la porteria del jugador1
 			movimiento = new Vector3(0.0f, 0.0f, 0.0f);
-			juego.golesJugador1++;
-			juego.reaccionDisco = Globals.reaccionDisco;
-			ControladorJuego.estado = ControladorJuego.Estados.GolJugador1;
+			ControladorJuego.golesJugador2++;
+			reaccionDisco = Globals.reaccionDisco;
+			GetComponent<Rigidbody> ().position = new Vector3 (0.0f, 0.0f, -6.0f);
+			ControladorJuego.estado = ControladorJuego.Estados.GolJugador2;
 		}
 		else if(colision.gameObject.tag == "PorteriaJugador2") {
-			// si choca con la porteria del jugador
+			// si choca con la porteria del jugador2
 			movimiento = new Vector3(0.0f, 0.0f, 0.0f);
-			juego.golesJugador2++;
-			juego.reaccionDisco = Globals.reaccionDisco;
-			ControladorJuego.estado = ControladorJuego.Estados.GolJugador2;
+			ControladorJuego.golesJugador1++;
+			reaccionDisco = Globals.reaccionDisco;
+			GetComponent<Rigidbody> ().position = new Vector3 (0.0f, 0.0f, 6.0f);
+			ControladorJuego.estado = ControladorJuego.Estados.GolJugador1;
 		}
 
 		// emitimos el sonido de choque
@@ -63,11 +70,21 @@ public class ControladorDisco : MonoBehaviour
 	
 	void Update() {
 		// movemos el disco restringiendo su posicion
-		GetComponent<Rigidbody>().position += movimiento * juego.reaccionDisco;
+		GetComponent<Rigidbody>().position += movimiento * reaccionDisco;
 		GetComponent<Rigidbody>().position = new Vector3(
 			Mathf.Clamp(GetComponent<Rigidbody>().position.x, -6.05f, 6.05f),
 			0.0f,
 			Mathf.Clamp(GetComponent<Rigidbody>().position.z, -12.1f, 12.1f)
 		);
+
+		if (ControladorJuego.estado == ControladorJuego.Estados.Final) {
+			GetComponent<Rigidbody> ().position = new Vector3 (0.0f, 0.0f, 0.0f);
+		}
+
+		position = GetComponent<Rigidbody> ().position;
+	}
+
+	IEnumerator WaitPlease() {
+		yield return new WaitForSeconds(0.01f);
 	}
 }
